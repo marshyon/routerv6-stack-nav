@@ -1,6 +1,4 @@
-import React, { useState, useCallback } from 'react'
-
-// import { StatusBar } from 'expo-status-bar';
+import React, { useEffect, useState } from 'react'
 import {
   StyleSheet,
   Text,
@@ -9,20 +7,17 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-import * as Font from 'expo-font';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-// import * as Svg from 'react-native-svg';
 import Svg, { Circle, Rect } from 'react-native-svg';
+import { v4 as uuidv4 } from 'uuid';
 
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
 
 
 function SvgComponent(props) {
@@ -34,15 +29,17 @@ function SvgComponent(props) {
   );
 }
 
-
+function SettingsScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Settings!</Text>
+    </View>
+  );
+}
 
 function HomeScreen() {
 
   const navigation = useNavigation();
-  // const { navigation, params}  = useNavigation();
-
-  // console.log('params: ', params ? params : 'no params')  // params:  undefined
-
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -56,7 +53,7 @@ function HomeScreen() {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate('Stack-App', { screen: 'Stack-App-Details', user: 'jane', itemID: 86  })}
+        onPress={() => navigation.navigate('Stack-App', { screen: 'Stack-App-Details', user: 'jane', itemID: 86 })}
       >
         <Text>Go To Details ...</Text>
       </TouchableOpacity>
@@ -67,44 +64,47 @@ function HomeScreen() {
   );
 }
 
-function DetailsScreen({route, navigation}) {
+function DetailsScreen({ route, navigation }) {
 
-  // const navigation = useNavigation();jj
-  console.log('route params: ', route.params ? route.params : 'no params')  // params:  undefined
   const myObject = {
     user: 'jon',
-    itemID: 86
+    itemID: uuidv4()
   }
+
+  const [appParams, setAppParams] = useState({})
+  useEffect(() => {
+    setAppParams(route.params)
+  }, [appParams, route.params]);
+
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Details Screen</Text>
 
       <TouchableOpacity
-        // onPress={() => props.navigation.navigate('Stack-App', { screen: 'Stack-App-Details' })}
-        // onPress={() => props.navigation.navigate('Stack-App', { screen: 'Stack-App-Details', user: 'jane', itemID: 86  })}
         onPress={() => {
-          // console.log('props: ', props)
-          // props.navigation.push('Stack-App', { screen: 'Stack-App-Details', params: {user: 'jon', itemID: 86 }  })
           navigation.push('Stack-App-Details', myObject)
         }}
       >
         <Text>More Details ...</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('home-screen')
-        }}
-      >
-        <Text>HOME!</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('home-screen')
+          }}
+        >
+              {/* <View style={{ flex: 1, justifyContent: 'center' }}>
+          <Text>HOME!</Text>
+          </View> */}
+          {appParams && (<Text>{appParams?.itemID}</Text>)}
+        </TouchableOpacity>
+
+    </View >
 
 
 
 
 
-
-    </View>
   );
 }
 
@@ -121,10 +121,14 @@ export default function App({ navigation }) {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="home-screen" component={HomeScreen} />
-        <Stack.Screen name="Stack-App" component={StackMainScreen} options={{ headerShown: true }} />
-      </Stack.Navigator>
+
+      <Tab.Navigator>
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Stack-App" component={StackMainScreen} options={{ headerShown: false }}/>
+      </Tab.Navigator>
+
+
+
     </NavigationContainer>
 
   )
@@ -133,29 +137,8 @@ export default function App({ navigation }) {
 const Main = ({ navigation }) => {
 
 
-  const [fontsLoaded] = useFonts({
-    'Inter-Black': require('./assets/fonts/Inter-Black.ttf'),
-  });
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-      console.log('fonts loaded ok now ...')
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    console.log('fonts not loaded yet ...')
-    return null;
-  }
 
   return (
-    // <NavigationContainer>
-    //   <Stack.Navigator>
-    //     <Stack.Screen name="Home" component={HomeScreen} />
-    //     <Stack.Screen name="Details" component={DetailsScreen} />
-    //   </Stack.Navigator>
-    // </NavigationContainer>
     <SafeAreaView
       style={{
         flex: 1,
