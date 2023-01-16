@@ -88,15 +88,15 @@ function DetailsScreen({ route, navigation }) {
         <Text>More Details ...</Text>
       </TouchableOpacity>
 
+      {appParams && (<Text>itemID : {appParams?.itemID}</Text>)}
+
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('home-screen')
+            navigation.navigate('Stack-Main')
           }}
-        >
-              {/* <View style={{ flex: 1, justifyContent: 'center' }}>
-          <Text>HOME!</Text>
-          </View> */}
-          {appParams && (<Text>{appParams?.itemID}</Text>)}
+        ><Text>
+          Go to bottom of stack
+          </Text>
         </TouchableOpacity>
 
     </View >
@@ -110,9 +110,9 @@ function DetailsScreen({ route, navigation }) {
 
 function StackMainScreen() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="Stack-Main" component={Main} options={{ headerShown: true }} />
-      <Stack.Screen name="Stack-App-Details" component={DetailsScreen} />
+    <Stack.Navigator options={{ headerShown: false}}>
+      <Stack.Screen name="Stack-Main" component={Main} options={{ headerShown: false }} />
+      <Stack.Screen name="Stack-App-Details" component={DetailsScreen} options={{ headerShown: true}} />
     </Stack.Navigator>
   )
 }
@@ -121,16 +121,27 @@ export default function App({ navigation }) {
 
   return (
     <NavigationContainer>
-
-      <Tab.Navigator>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            if (route.name === 'Home') {
+              iconName = focused
+                ? 'ios-information-circle'
+                : 'ios-information-circle-outline';
+            } else if (route.name === 'Stack-App') {
+              iconName = focused ? 'ios-list' : 'ios-list-outline';
+            }
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: 'tomato',
+          tabBarInactiveTintColor: 'gray',
+        })}
+      >
         <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Stack-App" component={StackMainScreen} options={{ headerShown: false }}/>
+        <Tab.Screen name="Stack-App" component={StackMainScreen} options={{ headerShown: false}} />
       </Tab.Navigator>
-
-
-
     </NavigationContainer>
-
   )
 }
 
