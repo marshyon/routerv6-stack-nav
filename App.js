@@ -10,6 +10,13 @@ import { useNavigation } from '@react-navigation/native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Svg, { Circle, Rect } from 'react-native-svg';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
 
 
@@ -90,14 +98,14 @@ function DetailsScreen({ route, navigation }) {
 
       {appParams && (<Text>itemID : {appParams?.itemID}</Text>)}
 
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Stack-Main')
-          }}
-        ><Text>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('Stack-Main')
+        }}
+      ><Text>
           Go to bottom of stack
-          </Text>
-        </TouchableOpacity>
+        </Text>
+      </TouchableOpacity>
 
     </View >
 
@@ -110,37 +118,79 @@ function DetailsScreen({ route, navigation }) {
 
 function StackMainScreen() {
   return (
-    <Stack.Navigator options={{ headerShown: false}}>
+    <Stack.Navigator options={{ headerShown: false }}>
       <Stack.Screen name="Stack-Main" component={Main} options={{ headerShown: false }} />
-      <Stack.Screen name="Stack-App-Details" component={DetailsScreen} options={{ headerShown: true}} />
+      <Stack.Screen name="Stack-App-Details" component={DetailsScreen} options={{ headerShown: true }} />
     </Stack.Navigator>
   )
+}
+
+function TabMainScreen() {
+  return (
+
+
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Home') {
+            iconName = focused
+              ? 'ios-information-circle'
+              : 'ios-information-circle-outline';
+          } else if (route.name === 'Stack-App') {
+            iconName = focused ? 'ios-list' : 'ios-list-outline';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Stack-App" component={StackMainScreen} options={{ headerShown: false }} />
+    </Tab.Navigator>
+  )
+}
+
+function NotificationsScreen({ navigation }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Button onPress={() => navigation.goBack()} title="Go back home" />
+    </View>
+  );
+}
+
+function CustomDrawerContent(props) {
+  return (
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <DrawerItem
+        label="Close drawer"
+        onPress={() => props.navigation.closeDrawer()}
+      />
+      <DrawerItem
+        label="Toggle drawer"
+        onPress={() => props.navigation.toggleDrawer()}
+      />
+    </DrawerContentScrollView>
+  );
 }
 
 export default function App({ navigation }) {
 
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-            if (route.name === 'Home') {
-              iconName = focused
-                ? 'ios-information-circle'
-                : 'ios-information-circle-outline';
-            } else if (route.name === 'Stack-App') {
-              iconName = focused ? 'ios-list' : 'ios-list-outline';
-            }
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: 'tomato',
-          tabBarInactiveTintColor: 'gray',
-        })}
+      {/* <TabMainScreen /> */}
+
+      <Drawer.Navigator initialRouteName="Home"
+      useLegacyImplementation
+      drawerContent={(props) => <CustomDrawerContent {...props} />}      
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Stack-App" component={StackMainScreen} options={{ headerShown: false}} />
-      </Tab.Navigator>
+        <Drawer.Screen name="Home Drawer" component={TabMainScreen} options={{ headerShown: false }}/>
+        <Drawer.Screen name="Notifications" component={NotificationsScreen} />
+      </Drawer.Navigator>
+
+
     </NavigationContainer>
   )
 }
